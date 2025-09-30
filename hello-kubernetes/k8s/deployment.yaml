@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kubernetes-api
+  labels:
+    app: hello-kubernetes-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-kubernetes-api
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes-api
+    spec:
+      containers:
+        - name: hello-kubernetes-api
+          image: wenfengluo/hello-kubernetes-api:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
